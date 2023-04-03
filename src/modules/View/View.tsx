@@ -1,53 +1,37 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import styled from "styled-components";
 import {Button} from "antd";
 import {useNavigate} from "react-router-dom";
 
+import {getCurrent, ResultsResponse} from "../../api";
+
 export const View = () => {
     const navigate = useNavigate()
+    const [current, setCurrent] = useState<ResultsResponse | null>(null)
 
-    const currentPeriod = 0 //в стейт потом
+    const getData = async () => {
+        const result = await getCurrent()
+        setCurrent(result.data)
+    }
 
-    const data = [
-        {
-            started: true,
-            rightTeam: {
-                name: 'team1',
-                score: 39
-            },
-            leftTeam: {
-                name: 'team2',
-                score: 40
-            },
-        },
-        {
-            started: false,
-            rightTeam: {
-                name: 'team1',
-                score: 0
-            },
-            leftTeam: {
-                name: 'team2',
-                score: 0
-            },
-        },
-    ]
-
-    const period = data[currentPeriod]
+    useEffect(() => {
+        getData()
+    }, [])
 
     return (
         <Container>
-            <Period>Период {currentPeriod + 1}</Period>
-            <Scoreboard>
+            {current && <Period>Период {current.period + 1}</Period>}
+            {current ? <Scoreboard>
                 <Team>
-                    {period.rightTeam.name}
-                    <div>{period.rightTeam.score}</div>
+                    {current.leftTeam.name}
+                    <div>{current.leftTeam.score}</div>
                 </Team>
                 <Team>
-                    {period.leftTeam.name}
-                    <div>{period.leftTeam.score}</div>
+                    {current.rightTeam.name}
+                    <div>{current.rightTeam.score}</div>
                 </Team>
-            </Scoreboard>
+            </Scoreboard> : <h1>Нет текущего матча</h1>}
+
             <ButtonContainer>
                 <Button type="primary" onClick={() => navigate('/results')}>Итоги матчей</Button>
                 <Button type="primary" onClick={() => navigate('/control')}>Управление текущим матчем</Button>
@@ -63,6 +47,7 @@ const Container = styled.div`
   margin: 100px auto;
   gap: 50px;
   font-size: 20px;
+  align-items: center;
 `
 
 const Period = styled.div`
@@ -72,6 +57,7 @@ const Period = styled.div`
 
 const Scoreboard = styled.div`
   display: flex;
+  width: 700px;
 `
 
 const Team = styled.div`

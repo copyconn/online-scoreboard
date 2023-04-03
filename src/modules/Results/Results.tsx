@@ -1,61 +1,66 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {Button, Table} from "antd";
 import styled from "styled-components";
 
+import {deleteMatch, getResults} from "../../api";
+
+const {Column} = Table;
+
+interface IResults {
+    id: number,
+    key: number,
+    date: string,
+    leftTeam: string,
+    rightTeam: string,
+    score: string,
+}
+
 export const Results = () => {
     const navigate = useNavigate()
+    const [results, setResults] = useState<IResults[]>([])
 
-    const dataSource = [
-        {
-            key: '1',
-            date: '01.01.2023',
-            team_1: 'пепеги',
-            team_2: 'мяк мяки',
-            score: '5 : 2',
-            delete: <Button type="primary">Х</Button>
-        },
-        {
-            key: '2',
-            date: '10.03.2023',
-            team_1: 'пепежата',
-            team_2: 'мяк мячата',
-            score: '8 : 6',
-            delete: <Button type="primary">Х</Button>
-        },
-    ];
+    const getData = async () => {
+        const result = await getResults()
+        const data = result.data.map((el, index) => {
+            return {
+                id: el.id,
+                key: index,
+                date: new Date(el.date).toLocaleDateString("ru-RU"),
+                leftTeam: el.leftTeam.name,
+                rightTeam: el.rightTeam.name,
+                score: `${el.leftTeam.score} : ${el.rightTeam.score}`,
+            }
+        })
+        data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        setResults(data)
+    }
 
-    const columns = [
-        {
-            title: 'Дата',
-            dataIndex: 'date',
-            key: 'date',
-        },
-        {
-            title: 'Первая команда',
-            dataIndex: 'team_1',
-            key: 'team_1',
-        },
-        {
-            title: 'Вторая команда',
-            dataIndex: 'team_2',
-            key: 'team_2',
-        },
-        {
-            title: 'Счет',
-            dataIndex: 'score',
-            key: 'score',
-        },
-        {
-            title: 'Удаление матча',
-            dataIndex: 'delete',
-            key: 'delete',
-        },
-    ];
+    useEffect(() => {
+        getData()
+    }, [])
+
+    const removeMatch = async (index: number) => {
+        await deleteMatch(results[index].id)
+        getData();
+    }
 
     return (
         <Container>
-            <Table dataSource={dataSource} columns={columns} />
+            <Table
+                dataSource={results}
+                pagination={{
+                    pageSize: 4,
+                }}
+            >
+                <Column title="Дата" dataIndex="date" key="date"/>
+                <Column title="Первая команда" dataIndex="leftTeam" key="leftTeam"/>
+                <Column title="Вторая команда" dataIndex="rightTeam" key="rightTeam"/>
+                <Column title="Счет" dataIndex="score" key="score"/>
+                <Column title="Удаление матча" key="delete" render={(_, __, index) => (
+                    <Button type="primary" onClick={() => removeMatch(index)}>X</Button>
+                )}/>
+            </Table>
 
             <ButtonContainer>
                 <Button type="primary" onClick={() => navigate('/control')}>Управление текущим матчем</Button>
@@ -66,7 +71,7 @@ export const Results = () => {
 }
 
 const Container = styled.div`
-  width: 700px;
+  width: 900px;
   font-size: 20px;
   margin: 100px auto;
   display: flex;

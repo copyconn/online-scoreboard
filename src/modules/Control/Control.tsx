@@ -1,73 +1,79 @@
-import React from "react";
-import {Button} from "antd";
+import React, {useEffect, useState} from "react";
+import {Button, InputNumber} from "antd";
 import styled from "styled-components";
 import {useNavigate} from "react-router-dom";
 
+import {getCurrent, ResultsResponse, updateScore} from "../../api";
+
 export const Control = () => {
     const navigate = useNavigate()
+    const [current, setCurrent] = useState<ResultsResponse | null>(null)
 
-    const currentPeriod = 0 //в стейт потом
+    const getData = async () => {
+        const result = await getCurrent()
+        setCurrent(result.data)
+    }
 
-    const data = [
-        {
-            started: true,
-            rightTeam: {
-                name: 'team1',
-                score: 39
-            },
-            leftTeam: {
-                name: 'team2',
-                score: 40
-            },
-        },
-        {
-            started: false,
-            rightTeam: {
-                name: 'team1',
-                score: 0
-            },
-            leftTeam: {
-                name: 'team2',
-                score: 0
-            },
-        },
-    ]
+    useEffect(() => {
+        getData()
+    }, [])
 
-    const period = data[currentPeriod]
+    const handleUpdateScore = async (score: number | null, id: number) => {
+        if (typeof score === 'number' && score > 0) {
+            await updateScore(id, score)
+            getData()
+        }
+    }
 
     return (
         <Container>
             <ButtonContainer>
-                <Button type="primary">Начать матч</Button>
-                <Button type="primary">Завершить текущий матч</Button>
-                <Button type="primary">Пауза</Button>
+                <Button type="primary" disabled={!!current}>Начать матч</Button>
+                <Button type="primary" disabled={!current}>Завершить текущий матч</Button>
+                <Button type="primary" disabled={!current}>Пауза</Button>
             </ButtonContainer>
 
             <PeriodBox>
-                Период <Period>{currentPeriod + 1}</Period>
+                Период <Period>{current && current.period + 1}</Period>
                 <Timer>01:32</Timer>
             </PeriodBox>
 
-            <Scoreboard>
-                <Team>
-                    {period.rightTeam.name}
-                    <div>{period.rightTeam.score}</div>
-                    <ButtonScoreContainer>
-                        <Button type="primary">+1</Button>
-                        <Button type="primary">+2</Button>
-                        <Button type="primary">+3</Button>
-                    </ButtonScoreContainer>
-                </Team>
-                <Team>
-                    {period.leftTeam.name}
-                    <div>{period.leftTeam.score}</div>
-                    <ButtonScoreContainer>
-                        <Button type="primary">+1</Button>
-                        <Button type="primary">+2</Button>
-                        <Button type="primary">+3</Button>
-                    </ButtonScoreContainer>
-                </Team>
-            </Scoreboard>
+            {current ?
+                <Scoreboard>
+                    <Team>
+                        {current.leftTeam.name}
+                        <InputNumber
+                            min={1}
+                            defaultValue={current.leftTeam.score}
+                            onChange={(value) => {
+                                handleUpdateScore(value, current.leftTeam.id)
+                            }}
+                        />
+                        <ButtonScoreContainer>
+                            <Button type="primary">+1</Button>
+                            <Button type="primary">+2</Button>
+                            <Button type="primary">+3</Button>
+                        </ButtonScoreContainer>
+
+                    </Team>
+                    <Team>
+                        {current.rightTeam.name}
+                        <InputNumber
+                            min={1}
+                            defaultValue={current.rightTeam.score}
+                            onChange={(value) => {
+                                handleUpdateScore(value, current?.rightTeam.id)
+                            }}
+                        />
+                        <ButtonScoreContainer>
+                            <Button type="primary">+1</Button>
+                            <Button type="primary">+2</Button>
+                            <Button type="primary">+3</Button>
+                        </ButtonScoreContainer>
+                    </Team>
+                </Scoreboard>
+                : <h1>Нет текущего матча</h1>
+            }
 
             <ButtonContainer>
                 <Button type="primary" onClick={() => navigate('/results')}>Итоги матчей</Button>

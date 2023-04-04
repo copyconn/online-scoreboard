@@ -3,7 +3,7 @@ import {Button, InputNumber} from "antd";
 import styled from "styled-components";
 import {useNavigate} from "react-router-dom";
 
-import {getCurrent, ResultsResponse, updateScore} from "../../api";
+import {finishCurrent, getCurrent, ResultsResponse, updateScore} from "../../api";
 
 export const Control = () => {
     const navigate = useNavigate()
@@ -18,6 +18,13 @@ export const Control = () => {
         getData()
     }, [])
 
+    const finishMatch = async () => {
+        if (current) {
+            await finishCurrent(current.id)
+            getData()
+        }
+    }
+
     const handleUpdateScore = async (score: number | null, id: number) => {
         if (typeof score === 'number' && score > 0) {
             await updateScore(id, score)
@@ -28,8 +35,8 @@ export const Control = () => {
     return (
         <Container>
             <ButtonContainer>
-                <Button type="primary" disabled={!!current}>Начать матч</Button>
-                <Button type="primary" disabled={!current}>Завершить текущий матч</Button>
+                <Button type="primary" disabled={!!current} onClick={() => navigate('/create')}>Начать матч</Button>
+                <Button type="primary" disabled={!current} onClick={finishMatch}>Завершить текущий матч</Button>
                 <Button type="primary" disabled={!current}>Пауза</Button>
             </ButtonContainer>
 
@@ -50,7 +57,8 @@ export const Control = () => {
                             }}
                         />
                         <ButtonScoreContainer>
-                            <Button type="primary">+1</Button>
+                            <Button type="primary"
+                                    onClick={() => handleUpdateScore(current.leftTeam.score + 1, current.leftTeam.id)}>+1</Button>
                             <Button type="primary">+2</Button>
                             <Button type="primary">+3</Button>
                         </ButtonScoreContainer>

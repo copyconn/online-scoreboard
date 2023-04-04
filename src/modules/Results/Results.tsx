@@ -22,7 +22,8 @@ export const Results = () => {
 
     const getData = async () => {
         const result = await getResults()
-        const data = result.data.map((el, index) => {
+        const rawData = result.data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        const data = rawData.map((el, index) => {
             return {
                 id: el.id,
                 key: index,
@@ -32,7 +33,6 @@ export const Results = () => {
                 score: `${el.leftTeam.score} : ${el.rightTeam.score}`,
             }
         })
-        data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         setResults(data)
     }
 
@@ -53,6 +53,8 @@ export const Results = () => {
                     pageSize: 4,
                 }}
             >
+
+                {/*<Column title="id" dataIndex="id" key="id"/>*/}
                 <Column title="Дата" dataIndex="date" key="date"/>
                 <Column title="Первая команда" dataIndex="leftTeam" key="leftTeam"/>
                 <Column title="Вторая команда" dataIndex="rightTeam" key="rightTeam"/>

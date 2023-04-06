@@ -4,14 +4,18 @@ import styled from "styled-components";
 import {useNavigate} from "react-router-dom";
 
 import {finishCurrent, getCurrent, ResultsResponse, updateScore} from "../../api";
+import {useAppDispatch, useAppSelector} from "../../hooks";
+import {update} from "./currentSlice";
 
 export const Control = () => {
     const navigate = useNavigate()
-    const [current, setCurrent] = useState<ResultsResponse | null>(null)
+    // const [current, setCurrent] = useState<ResultsResponse | null>(null)
+    const current = useAppSelector((state) => state.match.current)
+    const dispatch = useAppDispatch()
 
     const getData = async () => {
         const result = await getCurrent()
-        setCurrent(result.data)
+        dispatch(update(result.data))
     }
 
     useEffect(() => {

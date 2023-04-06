@@ -1,7 +1,7 @@
 import React from 'react';
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
-// import {Provider} from "react-redux";
-// import {store} from "./store";
+import {Provider} from "react-redux";
+import {store} from "./store";
 
 import {Control, Results, View} from "./modules";
 import {CreateMatch} from "./modules/Control/CreateMatch";
@@ -27,11 +27,11 @@ const router = createBrowserRouter([
 
 function App() {
     return (
-        // <Provider store={store}>
+        <Provider store={store}>
             <div>
                 <RouterProvider router={router}/>
             </div>
-        // </Provider>
+        </Provider>
     );
 }
 

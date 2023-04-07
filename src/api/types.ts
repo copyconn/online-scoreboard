@@ -1,4 +1,4 @@
-export interface ResultsResponse {
+export interface MatchInformation {
     current: boolean;
     date: Date;
     id: number;

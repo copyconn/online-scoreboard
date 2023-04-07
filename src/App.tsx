@@ -1,15 +1,12 @@
 import React from 'react';
-import {createBrowserRouter, RouterProvider} from "react-router-dom";
-import {Provider} from "react-redux";
-import {store} from "./store";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import {Control, Results, View} from "./modules";
-import {CreateMatch} from "./modules/Control/CreateMatch";
+import { Control, CreateMatch, Summary, Current } from "./modules";
 
 const router = createBrowserRouter([
     {
         path: '/',
-        element: <View/>,
+        element: <Current/>,
     },
     {
         path: '/control',
@@ -17,21 +14,19 @@ const router = createBrowserRouter([
     },
     {
         path: '/results',
-        element: <Results/>,
+        element: <Summary/>,
     },
     {
         path: '/create',
-        element: <CreateMatch />,
+        element: <CreateMatch/>,
     },
 ])
 
 function App() {
     return (
-        <Provider store={store}>
-            <div>
-                <RouterProvider router={router}/>
-            </div>
-        </Provider>
+        <div>
+            <RouterProvider router={router}/>
+        </div>
     );
 }
 

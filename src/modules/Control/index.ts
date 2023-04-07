@@ -1,1 +1,2 @@
-export {Control} from './Control'
+export { Control } from './Control'
+export { CreateMatch } from './CreateMatch'

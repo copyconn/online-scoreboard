@@ -1,1 +1,1 @@
-export {CreateMatch} from './CreateMatch'
+export { CreateMatch } from './CreateMatch'

@@ -1,20 +1,19 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import {Button} from "antd";
-import {useNavigate} from "react-router-dom";
+import { Button } from "antd";
+import { useNavigate } from "react-router-dom";
 
-import {getCurrent, ResultsResponse} from "../../api";
+import { getCurrent, MatchInformation } from "../../api";
 
-export const View = () => {
+export const Current = () => {
     const navigate = useNavigate()
-    const [current, setCurrent] = useState<ResultsResponse | null>(null)
-
-    const getData = async () => {
-        const result = await getCurrent()
-        setCurrent(result.data)
-    }
+    const [current, setCurrent] = useState<MatchInformation | null>(null)
 
     useEffect(() => {
+        const getData = async () => {
+            const response = await getCurrent()
+            setCurrent(response.data)
+        }
         getData()
     }, [])
 

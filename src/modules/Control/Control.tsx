@@ -1,30 +1,28 @@
-import React, {useEffect, useState} from "react";
-import {Button, InputNumber} from "antd";
+import React, { useEffect, useState } from "react";
+import { Button, InputNumber } from "antd";
 import styled from "styled-components";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-import {finishCurrent, getCurrent, ResultsResponse, updateScore} from "../../api";
-import {useAppDispatch, useAppSelector} from "../../hooks";
-import {update} from "./currentSlice";
+import {
+    finishCurrent,
+    getCurrent,
+    MatchInformation,
+    updatePeriod,
+    updateScore
+} from "../../api";
 
 export const Control = () => {
     const navigate = useNavigate()
-    // const [current, setCurrent] = useState<ResultsResponse | null>(null)
-    const current = useAppSelector((state) => state.match.current)
-    const dispatch = useAppDispatch()
+    const [current, setCurrent] = useState<MatchInformation | null>(null)
 
     const getData = async () => {
-        const result = await getCurrent()
-        dispatch(update(result.data))
+        const response = await getCurrent()
+        setCurrent(response.data)
     }
 
-    useEffect(() => {
-        getData()
-    }, [])
-
-    const finishMatch = async () => {
+    const handleUpdatePeriod = async () => {
         if (current) {
-            await finishCurrent(current.id)
+            await updatePeriod(current.id)
             getData()
         }
     }
@@ -36,17 +34,33 @@ export const Control = () => {
         }
     }
 
+    const handleFinishMatch = async () => {
+        if (current) {
+            await finishCurrent(current.id)
+            getData()
+        }
+    }
+
+    useEffect(() => {
+        getData()
+    }, [])
+
+    const isMatchAvailable = !!current
+    const hasNextPeriod = !current || current.period === 1
+
     return (
         <Container>
             <ButtonContainer>
-                <Button type="primary" disabled={!!current} onClick={() => navigate('/create')}>Начать матч</Button>
-                <Button type="primary" disabled={!current} onClick={finishMatch}>Завершить текущий матч</Button>
-                <Button type="primary" disabled={!current}>Пауза</Button>
+                <Button type="primary" disabled={isMatchAvailable} onClick={() => navigate('/create')}>Начать
+                    матч</Button>
+                <Button type="primary" disabled={!isMatchAvailable} onClick={handleFinishMatch}>Завершить текущий
+                    матч</Button>
+                <Button type="primary" disabled={hasNextPeriod} onClick={handleUpdatePeriod}>Переключить
+                    период</Button>
             </ButtonContainer>
 
             <PeriodBox>
                 Период <Period>{current && current.period + 1}</Period>
-                <Timer>01:32</Timer>
             </PeriodBox>
 
             {current ?
@@ -55,7 +69,7 @@ export const Control = () => {
                         {current.leftTeam.name}
                         <InputNumber
                             min={1}
-                            defaultValue={current.leftTeam.score}
+                            value={current.leftTeam.score}
                             onChange={(value) => {
                                 handleUpdateScore(value, current.leftTeam.id)
                             }}
@@ -63,8 +77,10 @@ export const Control = () => {
                         <ButtonScoreContainer>
                             <Button type="primary"
                                     onClick={() => handleUpdateScore(current.leftTeam.score + 1, current.leftTeam.id)}>+1</Button>
-                            <Button type="primary">+2</Button>
-                            <Button type="primary">+3</Button>
+                            <Button type="primary"
+                                    onClick={() => handleUpdateScore(current.leftTeam.score + 2, current.leftTeam.id)}>+2</Button>
+                            <Button type="primary"
+                                    onClick={() => handleUpdateScore(current.leftTeam.score + 3, current.leftTeam.id)}>+3</Button>
                         </ButtonScoreContainer>
 
                     </Team>
@@ -72,15 +88,18 @@ export const Control = () => {
                         {current.rightTeam.name}
                         <InputNumber
                             min={1}
-                            defaultValue={current.rightTeam.score}
+                            value={current.rightTeam.score}
                             onChange={(value) => {
-                                handleUpdateScore(value, current?.rightTeam.id)
+                                handleUpdateScore(value, current.rightTeam.id)
                             }}
                         />
                         <ButtonScoreContainer>
-                            <Button type="primary">+1</Button>
-                            <Button type="primary">+2</Button>
-                            <Button type="primary">+3</Button>
+                            <Button type="primary"
+                                    onClick={() => handleUpdateScore(current.rightTeam.score + 1, current.rightTeam.id)}>+1</Button>
+                            <Button type="primary"
+                                    onClick={() => handleUpdateScore(current.rightTeam.score + 2, current.rightTeam.id)}>+2</Button>
+                            <Button type="primary"
+                                    onClick={() => handleUpdateScore(current.rightTeam.score + 3, current.rightTeam.id)}>+3</Button>
                         </ButtonScoreContainer>
                     </Team>
                 </Scoreboard>
@@ -96,7 +115,7 @@ export const Control = () => {
 }
 
 const Container = styled.div`
-  width: 700px;
+  width: 800px;
   font-size: 20px;
   display: flex;
   flex-wrap: wrap;

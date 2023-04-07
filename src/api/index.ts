@@ -1,2 +1,10 @@
-export {getResults, getCurrent, createMatch, updateScore, finishCurrent, deleteMatch} from './requests'
-export type {ResultsResponse} from './types'
+export {
+    getSummary,
+    getCurrent,
+    createMatch,
+    updatePeriod,
+    updateScore,
+    finishCurrent,
+    deleteMatch
+} from './requests'
+export type { MatchInformation } from './types'

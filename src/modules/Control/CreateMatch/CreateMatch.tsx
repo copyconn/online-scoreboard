@@ -1,10 +1,11 @@
 import React from "react";
-import {Button, Form, Input} from "antd";
+import { Button, Form, Input } from "antd";
 import styled from "styled-components";
-import {useNavigate} from "react-router-dom";
-import {createMatch} from "../../../api";
+import { useNavigate } from "react-router-dom";
 
-interface IValues {
+import { createMatch } from "../../../api";
+
+interface IMatchTeams {
     leftTeam: string,
     rightTeam: string
 }
@@ -12,7 +13,7 @@ interface IValues {
 export const CreateMatch = () => {
     const navigate = useNavigate()
 
-    const onFinish = async (values: IValues) => {
+    const onFinish = async (values: IMatchTeams) => {
         await createMatch(values.leftTeam, values.rightTeam)
         navigate('/control')
     }

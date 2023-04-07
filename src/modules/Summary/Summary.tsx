@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {Button, Table} from "antd";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button, Table } from "antd";
 import styled from "styled-components";
 
-import {deleteMatch, getResults} from "../../api";
+import { deleteMatch, getSummary } from "../../api";
 
-const {Column} = Table;
+const { Column } = Table;
 
-interface IResults {
+interface IResult {
     id: number,
     key: number,
     date: string,
@@ -16,13 +16,13 @@ interface IResults {
     score: string,
 }
 
-export const Results = () => {
+export const Summary = () => {
     const navigate = useNavigate()
-    const [results, setResults] = useState<IResults[]>([])
+    const [results, setResults] = useState<IResult[]>([])
 
     const getData = async () => {
-        const result = await getResults()
-        const rawData = result.data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        const response = await getSummary()
+        const rawData = response.data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         const data = rawData.map((el, index) => {
             return {
                 id: el.id,
